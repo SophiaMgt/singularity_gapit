@@ -50,7 +50,6 @@ To run Rscript:
     
     R -e "devtools::install_github('jiabowang/GAPIT', force=TRUE)"
 
-    
     # Clean up
     conda clean -y --all
     rm -f /opt/miniconda.sh
