@@ -1,0 +1,65 @@
+BootStrap: docker
+From: debian:11.11
+
+%environment
+export LC_ALL=C
+export LC_NUMERIC=en_GB.UTF-8
+export PATH="/opt/miniconda/bin:$PATH"
+
+%labels
+    Author Marguerit Sophia
+    Description "Singularity container for GAPIT"
+    DATE_MODIF 29/04/2025
+
+%help
+This container includes R version 4.4.1 with the following packages required for the analysis with GAPIT:
+-GAPIT
+-devtools
+
+Usage:
+To run R:
+    ./GAPIT_cont.sif
+To run Rscript:
+    singularity exec GAPIT_cont.sif Rscript
+
+%post
+    # Install essential system dependencies
+    apt -y update
+    apt -y install wget bzip2 build-essential cmake libfontconfig1-dev libharfbuzz-dev \
+        libfribidi-dev libtiff5-dev libfreetype6-dev libpng-dev libjpeg-dev libpoppler-cpp-dev unzip \
+        libcurl4-openssl-dev
+
+    # Install conda
+    cd /opt
+    wget https://repo.anaconda.com/miniconda/Miniconda3-py38_23.11.0-2-Linux-x86_64.sh -O miniconda.sh
+    bash miniconda.sh -b -p /opt/miniconda
+    export PATH="/opt/miniconda/bin:$PATH"
+
+    # Set up conda environment
+    conda config --add channels conda-forge
+    conda update -y --all -c conda-forge
+    ## install 'mamba'
+    conda install -y mamba -c conda-forge
+
+    # Install required R packages using mamba
+    mamba install -y -c conda-forge r-base=4.4.1
+    mamba install -y -c conda-forge r-ggplot2
+    mamba install -y -c conda-forge r-devtools
+
+    mamba install -y -c conda-forge r-usethis r-pkgdown r-rcmdcheck r-rversions r-urlchecker
+    
+    R -e "devtools::install_github('jiabowang/GAPIT', force=TRUE)"
+
+    
+    # Clean up
+    conda clean -y --all
+    rm -f /opt/miniconda.sh
+    apt autoremove --purge
+    apt clean
+
+%runscript
+    # Run the R script inside the container
+    exec Rscript "$@"
+
+%test
+    R --version
