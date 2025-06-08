@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'gapit.def'
+      - 'GAPIT.def'
 
 jobs:
   build:
@@ -18,12 +18,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Singularity
-        uses: eWaterCycle/setup-singularity@v7
+      - name: Install Singularity
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y singularity-container
+          sudo apt-get install -y golang-go
+          export VERSION=3.8.0
+          wget https://github.com/sylabs/singularity/releases/download/v${VERSION}/singularity-${VERSION}.tar.gz
+          tar -xvzf singularity-${VERSION}.tar.gz
+          cd singularity
+          ./mconfig
+          make -C builddir
+          sudo make -C builddir install
 
       - name: Build .sif
         run: |
-          singularity build GAPIT_cont.sif gapit.def
+          singularity build GAPIT_cont.sif GAPIT.def
 
       - name: Install ORAS CLI
         run: |
