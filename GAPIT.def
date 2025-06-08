@@ -8,7 +8,7 @@ export PATH="/opt/miniconda/bin:$PATH"
 
 %labels
     Author Marguerit Sophia
-    Description "Singularity container to run GAPIT packages"
+    Description "Singularity container for GAPIT GWAS"
     DATE_MODIF 29/04/2025
 
 %help
