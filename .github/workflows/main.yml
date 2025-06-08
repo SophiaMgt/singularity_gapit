@@ -35,7 +35,7 @@ jobs:
 
       - name: Build .sif
         run: |
-          singularity build GAPIT_cont.sif GAPIT.def
+          singularity --fakeroot build GAPIT_cont.sif GAPIT.def
 
       - name: Install ORAS CLI
         run: |
