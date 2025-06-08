@@ -9,7 +9,6 @@ export PATH="/opt/miniconda/bin:$PATH"
 %labels
     Author Marguerit Sophia
     Description "Singularity container for GAPIT gwas analysis"
-    DATE_MODIF 29/04/2025
 
 %help
 This container includes R version 4.4.1 with the following packages required for the analysis with GAPIT:
