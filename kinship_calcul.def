@@ -1,0 +1,78 @@
+BootStrap: docker
+From: debian:11.11
+
+%environment
+export LC_ALL=C
+export LC_NUMERIC=en_GB.UTF-8
+export PATH="/opt/miniconda/bin:$PATH"
+
+%labels
+    Author Marguerit Sophia
+    Description "Singularity container for kinship calcul"
+    DATE_MODIF 25/03/2025
+
+%help
+This container includes R version 4.4.2 with the following packages required for the calcul of kinship matrix with rrBLUP:
+-rrBLUP (v4.6.3)
+-ggplot2 (v3.5.1)
+-snpStats (v1.56.0)
+-reshape2 (v1.4.4)
+
+Usage:
+To run R:
+    ./Kinship_container.sif
+To run Rscript:
+    singularity exec Kinship_container.sif Rscript
+
+%post
+    # Install essential system dependencies
+    apt -y update
+    apt -y install wget bzip2 build-essential cmake libfontconfig1-dev libharfbuzz-dev \
+        libfribidi-dev libtiff5-dev libfreetype6-dev libpng-dev libjpeg-dev libpoppler-cpp-dev unzip \
+        libcurl4-openssl-dev
+
+    # Install conda
+    cd /opt
+    wget https://repo.anaconda.com/miniconda/Miniconda3-py38_23.11.0-2-Linux-x86_64.sh -O miniconda.sh
+    bash miniconda.sh -b -p /opt/miniconda
+    export PATH="/opt/miniconda/bin:$PATH"
+
+    # Set up conda environment
+    conda config --add channels conda-forge
+    conda update -y --all -c conda-forge
+    ## install 'mamba'
+    conda install -y mamba -c conda-forge
+
+    # Install required R packages using mamba
+    mamba install -y -c conda-forge r-base=4.4.2
+    mamba install -y -c conda-forge r-ggplot2
+    mamba install -y -c conda-forge r-reshape2
+    mamba install -y -c conda-forge r-rrblup
+    mamba install -y -c conda-forge r-gplots
+    mamba install -y -c conda-forge r-dplyr
+    mamba install -y -c conda-forge r-corpcor
+    
+    # snppStats package 
+    mamba install -y -c bioconda bioconductor-snpstats    
+
+    # Clean up
+    conda clean -y --all
+    rm -f /opt/miniconda.sh
+    apt autoremove --purge
+    apt clean
+
+%runscript
+    # Run the R script inside the container
+    exec Rscript "$@"
+
+%test
+    R --version
+    R -e "if (!requireNamespace('reshape2', quietly=TRUE)) stop('Package reshape2 not found')"
+    R -e "if (!requireNamespace('rrBLUP', quietly=TRUE)) stop('Package rrBLUP not found')"
+    R -e "if (!requireNamespace('snpStats', quietly=TRUE)) stop('Package snpStats not found')"   
+    R -e "if (!requireNamespace('ggplot2', quietly=TRUE)) stop('Package ggplot2 not found')"
+
+    R -e "packageVersion('reshape2')"
+    R -e "packageVersion('rrBLUP')"
+    R -e "packageVersion('ggplot2')"
+    R -e "packageVersion('snpStats')"
