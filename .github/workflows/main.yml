@@ -21,21 +21,21 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential libseccomp-dev pkg-config squashfs-tools cryptsetup curl git uuid-dev
+          sudo apt-get install -y build-essential libseccomp-dev pkg-config squashfs-tools cryptsetup curl git uidmap
 
-      - name: Install Singularity
+      - name: Install Apptainer
         run: |
-          export VERSION=3.8.0
-          wget https://github.com/sylabs/singularity/releases/download/v${VERSION}/singularity-ce-${VERSION}.tar.gz
-          tar -xvzf singularity-ce-${VERSION}.tar.gz
-          cd singularity-ce-${VERSION}
+          export VERSION=1.2.5
+          wget https://github.com/apptainer/apptainer/releases/download/v${VERSION}/apptainer-${VERSION}.tar.gz
+          tar -xzf apptainer-${VERSION}.tar.gz
+          cd apptainer-${VERSION}
           ./mconfig
           make -C builddir
           sudo make -C builddir install
 
-      - name: Build .sif
+      - name: Build SIF with Apptainer
         run: |
-          singularity build --fakeroot GAPIT_cont.sif GAPIT.def
+          apptainer build --fakeroot GAPIT_cont.sif GAPIT.def
 
       - name: Install ORAS CLI
         run: |
